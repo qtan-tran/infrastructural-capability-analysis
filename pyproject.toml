@@ -1,0 +1,66 @@
+[tool.poetry]
+name = "infrastructural-capability-analysis"
+version = "0.1.0"
+description = "Testing whether relational metadata linkage density predicts collective capability to shape open research infrastructures."
+authors = ["Your Name <your.email@example.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "src" }]
+keywords = ["openaire", "scholarly-infrastructure", "bibliometrics", "causal-inference", "LIS"]
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.13"
+polars = "^1.9.0"
+pyarrow = "^17.0.0"
+networkx = "^3.3"
+igraph = "^0.11.6"
+statsmodels = "^0.14.2"
+scikit-learn = "^1.5.2"
+aiohttp = "^3.10.0"
+requests = "^2.32.3"
+zenodo-get = "^1.6.1"
+matplotlib = "^3.9.0"
+seaborn = "^0.13.2"
+folium = "^0.17.0"
+plotly = "^5.24.0"
+pygithub = "^2.4.0"
+typer = "^0.12.5"
+tqdm = "^4.66.0"
+python-dotenv = "^1.0.1"
+pydantic = "^2.9.0"
+dask = { version = "^2024.9.0", optional = true }
+spacy = { version = "^3.7.6", optional = true }
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.0"
+pytest-cov = "^5.0.0"
+pytest-asyncio = "^0.24.0"
+aioresponses = "^0.7.6"
+responses = "^0.25.3"
+ruff = "^0.6.9"
+mypy = "^1.11.0"
+jupyter = "^1.1.0"
+nbformat = "^5.10.0"
+
+[tool.poetry.extras]
+heavy = ["dask", "spacy"]
+
+[tool.poetry.scripts]
+run-analysis = "run_analysis:app"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-v --tb=short"

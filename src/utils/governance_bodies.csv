@@ -1,0 +1,34 @@
+name,category,url
+DataCite,metadata-registry,https://datacite.org
+Crossref,metadata-registry,https://crossref.org
+ORCID,identifier,https://orcid.org
+ROR,identifier,https://ror.org
+OpenAIRE,aggregator,https://openaire.eu
+EOSC,infrastructure,https://eosc-portal.eu
+Research Data Alliance,standards,https://rd-alliance.org
+RDA,standards,https://rd-alliance.org
+CODATA,standards,https://codata.org
+W3C,standards,https://w3.org
+GO FAIR,principles,https://go-fair.org
+FORCE11,standards,https://force11.org
+Dublin Core Metadata Initiative,standards,https://dublincore.org
+DCMI,standards,https://dublincore.org
+NISO,standards,https://niso.org
+Confederation of Open Access Repositories,advocacy,https://coar-repositories.org
+COAR,advocacy,https://coar-repositories.org
+Directory of Open Access Journals,directory,https://doaj.org
+DOAJ,directory,https://doaj.org
+OASPA,advocacy,https://oaspa.org
+SPARC,advocacy,https://sparcopen.org
+Re3data,directory,https://re3data.org
+FAIRsharing,directory,https://fairsharing.org
+Zenodo,repository,https://zenodo.org
+Dryad,repository,https://datadryad.org
+Figshare,repository,https://figshare.com
+CLARIN,infrastructure,https://clarin.eu
+DARIAH,infrastructure,https://dariah.eu
+ELIXIR,infrastructure,https://elixir-europe.org
+CESSDA,infrastructure,https://cessda.eu
+Open Science Framework,platform,https://osf.io
+OSF,platform,https://osf.io
+Invest in Open Infrastructure,governance,https://investinopen.org

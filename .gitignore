@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+build/
+dist/
+
+# Data
+data/raw/
+data/processed/
+data/cache/
+data/*.tar
+data/*.tar.gz
+data/*.jsonl
+data/*.json
+!data/.gitkeep
+!data/sample_parquet/.gitkeep
+
+# Results
+results/
+!results/.gitkeep
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Poetry
+poetry.lock
