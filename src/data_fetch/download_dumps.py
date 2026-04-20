@@ -14,8 +14,8 @@ from __future__ import annotations
 import hashlib
 import os
 import tarfile
-from pathlib import Path
 from collections.abc import Iterable
+from pathlib import Path
 
 import requests
 from dotenv import load_dotenv
