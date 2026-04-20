@@ -154,9 +154,9 @@ def test_compute_variables_governance_detected(tmp_path, processed_dir):
     df = compute_all_variables(processed_dir, stats, results, mode="global")
     assert df.height >= 1
     # commA explicitly mentions ORCID + DataCite -> governance > 0
-    commA = df.filter(pl.col("community_id") == "commA")
-    if commA.height:
-        assert commA["capability_governance"].item() >= 1
+    comm_a = df.filter(pl.col("community_id") == "commA")
+    if comm_a.height:
+        assert comm_a["capability_governance"].item() >= 1
 
 
 def test_causal_pipeline_smoke(tmp_path, processed_dir):

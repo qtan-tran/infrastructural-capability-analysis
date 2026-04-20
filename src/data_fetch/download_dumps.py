@@ -15,7 +15,7 @@ import hashlib
 import os
 import tarfile
 from pathlib import Path
-from typing import Iterable
+from collections.abc import Iterable
 
 import requests
 from dotenv import load_dotenv

@@ -44,7 +44,7 @@ async def _fetch_doi(session: aiohttp.ClientSession, sem: asyncio.Semaphore, doi
                     ],
                     "schema_version": attrs.get("schemaVersion"),
                 }
-        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+        except (aiohttp.ClientError, TimeoutError) as e:
             logger.debug("DataCite error for %s: %s", doi, e)
             return {"doi": doi, "status": -1, "error": str(e)}
 

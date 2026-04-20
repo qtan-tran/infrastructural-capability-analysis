@@ -23,7 +23,7 @@ def _open_maybe_gzip(path: Path):
     """Return a text-mode handle whether the file is gzipped or plain."""
     if str(path).endswith(".gz"):
         return gzip.open(path, "rt", encoding="utf-8")
-    return open(path, encoding="utf-8")
+    return open(path, encoding="utf-8")  # noqa: SIM115
 
 
 def _iter_jsonl(path: Path) -> Iterator[dict[str, Any]]:
@@ -233,10 +233,9 @@ def parse_dump_to_parquet(
             continue
         combined = pl.concat(dfs, how="diagonal_relaxed")
 
-        if entity in ("publication", "dataset", "software", "community") and sample:
-            if entity == "community" and combined.height > sample:
-                combined = combined.sample(sample, seed=42)
-                logger.info("Subsampled communities to %d", sample)
+        if sample and entity == "community" and combined.height > sample:
+            combined = combined.sample(sample, seed=42)
+            logger.info("Subsampled communities to %d", sample)
 
         dest = out_dir / f"{entity}.parquet"
         combined.write_parquet(dest)

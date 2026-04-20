@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import networkx as nx
 import polars as pl
 
 from src.utils.logging import get_logger
@@ -20,8 +21,6 @@ try:
 except ImportError:  # pragma: no cover
     _HAS_IGRAPH = False
     logger.warning("python-igraph not available; falling back to NetworkX (slower).")
-
-import networkx as nx
 
 
 def _products_long(products: pl.DataFrame) -> pl.DataFrame:
@@ -107,10 +106,7 @@ def build_linkage_network(
     )
 
     # Centrality via igraph or networkx on community-community projection
-    if _HAS_IGRAPH:
-        centrality = _centrality_igraph(long)
-    else:
-        centrality = _centrality_nx(long)
+    centrality = _centrality_igraph(long) if _HAS_IGRAPH else _centrality_nx(long)
 
     result = per_community.join(centrality, on="community_id", how="left").with_columns(
         pl.col("betweenness").fill_null(0.0),
@@ -167,19 +163,19 @@ def _centrality_nx(long: pl.DataFrame) -> pl.DataFrame:
     comm_ids = pairs["community_id"]
     comm_products = [set(ps) for ps in pairs["product_id"]]
 
-    G = nx.Graph()
-    G.add_nodes_from(comm_ids)
+    graph = nx.Graph()
+    graph.add_nodes_from(comm_ids)
     for i, ci in enumerate(comm_ids):
         for j in range(i + 1, len(comm_ids)):
             if comm_products[i] & comm_products[j]:
-                G.add_edge(ci, comm_ids[j])
+                graph.add_edge(ci, comm_ids[j])
 
-    betweenness = nx.betweenness_centrality(G) if G.number_of_nodes() < 5000 else {n: 0.0 for n in G}
+    betweenness = nx.betweenness_centrality(graph) if graph.number_of_nodes() < 5000 else {n: 0.0 for n in graph}
     try:
-        eigen = nx.eigenvector_centrality_numpy(G, max_iter=500)
+        eigen = nx.eigenvector_centrality_numpy(graph, max_iter=500)
     except Exception:  # pragma: no cover
-        eigen = {n: 0.0 for n in G}
-    communities = nx.community.greedy_modularity_communities(G) if G.number_of_edges() else []
+        eigen = {n: 0.0 for n in graph}
+    communities = nx.community.greedy_modularity_communities(graph) if graph.number_of_edges() else []
     classmap: dict[str, int] = {}
     for k, grp in enumerate(communities):
         for node in grp:

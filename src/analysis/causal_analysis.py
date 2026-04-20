@@ -47,11 +47,11 @@ def _prepare_design_matrix(df: pl.DataFrame) -> pd.DataFrame:
     return pdf
 
 
-def _vif(X: pd.DataFrame) -> dict[str, float]:
-    X = sm.add_constant(X, has_constant="add")
+def _vif(features: pd.DataFrame) -> dict[str, float]:
+    features = sm.add_constant(features, has_constant="add")
     return {
-        col: float(variance_inflation_factor(X.values, i))
-        for i, col in enumerate(X.columns)
+        col: float(variance_inflation_factor(features.values, i))
+        for i, col in enumerate(features.columns)
         if col != "const"
     }
 
@@ -63,11 +63,11 @@ def _power_analysis(n: int, effect_size: float = 0.2, alpha: float = 0.05) -> fl
 
 def run_ols(pdf: pd.DataFrame) -> dict[str, Any]:
     """OLS: capability_score ~ linkage_density + controls."""
-    X_cols = ["linkage_density", *_CONTROLS, *_REGION_DUMMIES]
-    X = pdf[X_cols]
+    x_cols = ["linkage_density", *_CONTROLS, *_REGION_DUMMIES]
+    x = pdf[x_cols]
     y = pdf["capability_score"]
-    X_const = sm.add_constant(X, has_constant="add")
-    model = sm.OLS(y, X_const).fit(cov_type="HC3")
+    x_const = sm.add_constant(x, has_constant="add")
+    model = sm.OLS(y, x_const).fit(cov_type="HC3")
     return {
         "model": "OLS",
         "params": model.params.to_dict(),
@@ -76,7 +76,7 @@ def run_ols(pdf: pd.DataFrame) -> dict[str, Any]:
         "rsquared": float(model.rsquared),
         "rsquared_adj": float(model.rsquared_adj),
         "n_obs": int(model.nobs),
-        "vif": _vif(X),
+        "vif": _vif(x),
     }
 
 
@@ -84,12 +84,12 @@ def run_negbin(pdf: pd.DataFrame) -> dict[str, Any]:
     """Negative Binomial: capability_enrichment ~ linkage_density + controls."""
     if "capability_enrichment" not in pdf.columns:
         return {"model": "NegBin", "skipped": True, "reason": "no enrichment column"}
-    X_cols = ["linkage_density", *_CONTROLS, *_REGION_DUMMIES]
-    X = sm.add_constant(pdf[X_cols], has_constant="add")
+    x_cols = ["linkage_density", *_CONTROLS, *_REGION_DUMMIES]
+    x = sm.add_constant(pdf[x_cols], has_constant="add")
     y = pdf["capability_enrichment"].astype(int)
     try:
         model = sm.GLM(
-            y, X, family=sm.families.NegativeBinomial(alpha=1.0)
+            y, x, family=sm.families.NegativeBinomial(alpha=1.0)
         ).fit()
         return {
             "model": "NegBin",
@@ -106,13 +106,13 @@ def run_negbin(pdf: pd.DataFrame) -> dict[str, Any]:
 def run_psm(pdf: pd.DataFrame, seed: int = 42) -> dict[str, Any]:
     """Propensity Score Matching (1:1 nearest-neighbour, no replacement)."""
     covariates = [*_CONTROLS, *_REGION_DUMMIES]
-    X = pdf[covariates].values
+    x = pdf[covariates].values
     y = pdf["treated"].values
     if y.sum() == 0 or y.sum() == len(y):
         return {"model": "PSM", "error": "degenerate treatment"}
 
-    ps_model = LogisticRegression(max_iter=1000, random_state=seed).fit(X, y)
-    ps = ps_model.predict_proba(X)[:, 1]
+    ps_model = LogisticRegression(max_iter=1000, random_state=seed).fit(x, y)
+    ps = ps_model.predict_proba(x)[:, 1]
     pdf = pdf.assign(propensity=ps)
 
     treat = pdf[pdf["treated"] == 1].reset_index(drop=True)
@@ -172,17 +172,17 @@ def run_iv(pdf: pd.DataFrame) -> dict[str, Any]:
 
     covariates = [*_CONTROLS, *_REGION_DUMMIES]
     # First stage
-    X1 = sm.add_constant(pdf[[*covariates, "is_eu_horizon"]], has_constant="add")
-    first = sm.OLS(pdf["linkage_density"], X1).fit(cov_type="HC3")
-    pdf = pdf.assign(density_hat=first.predict(X1))
+    x1 = sm.add_constant(pdf[[*covariates, "is_eu_horizon"]], has_constant="add")
+    first = sm.OLS(pdf["linkage_density"], x1).fit(cov_type="HC3")
+    pdf = pdf.assign(density_hat=first.predict(x1))
 
     # Weak instrument F-test on the excluded instrument
     r = first.t_test("is_eu_horizon = 0")
     first_stage_f = float((r.tvalue**2).item())
 
     # Second stage
-    X2 = sm.add_constant(pdf[["density_hat", *covariates]], has_constant="add")
-    second = sm.OLS(pdf["capability_score"], X2).fit(cov_type="HC3")
+    x2 = sm.add_constant(pdf[["density_hat", *covariates]], has_constant="add")
+    second = sm.OLS(pdf["capability_score"], x2).fit(cov_type="HC3")
 
     return {
         "model": "IV-2SLS",

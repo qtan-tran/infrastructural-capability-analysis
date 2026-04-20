@@ -47,7 +47,7 @@ async def _fetch_doi(session: aiohttp.ClientSession, sem: asyncio.Semaphore, doi
                     "funder": [f.get("name") for f in msg.get("funder", []) or []],
                     "license": [lic.get("URL") for lic in msg.get("license", []) or []],
                 }
-        except (aiohttp.ClientError, asyncio.TimeoutError) as e:
+        except (aiohttp.ClientError, TimeoutError) as e:
             logger.debug("Crossref error for %s: %s", doi, e)
             return {"doi": doi, "status": -1, "error": str(e)}
 
